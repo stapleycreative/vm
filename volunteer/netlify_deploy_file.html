@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Manager</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #fafafa;
+        }
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Lucide icons as inline SVG components
+        const Trophy = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                <path d="M4 22h16" />
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+            </svg>
+        );
+
+        const Users = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+        );
+
+        const Gift = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12" />
+                <rect width="20" height="5" x="2" y="7" />
+                <line x1="12" x2="12" y1="22" y2="7" />
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+            </svg>
+        );
+
+        const User = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+        );
+
+        const MessageSquare = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+        );
+
+        const Mail = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+        );
+
+        const Phone = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+        );
+
+        const X = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        );
+
+        const Star = ({ size = 24, color = "currentColor", strokeWidth = 2, fill = "none" }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+        );
+
+        const TrendingUp = ({ size = 24, color = "currentColor", strokeWidth = 2 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                <polyline points="16 7 22 7 22 13" />
+            </svg>
+        );
+
+        // Initial dummy data (fallback)
+        const initialTasks = [
+          {
+            id: 1,
+            type: 'thank_you',
+            priority: 'high',
+            specialTag: 'special',
+            recipientName: 'Susan Martinez',
+            recipientCount: 1,
+            context: 'for her $100 donation',
+            message: 'Hi Susan, thank you so much for your generous $100 donation!',
+            ctaText: 'Send thank you',
+            contactMethod: 'sms',
+            points: 50,
+            status: 'available'
+          },
+          {
+            id: 2,
+            type: 'follow_up',
+            priority: 'medium',
+            specialTag: 'batched',
+            recipientName: null,
+            recipientCount: 12,
+            context: 'donors from last week',
+            message: 'Hi there, following up on your recent donation.',
+            ctaText: 'Send batch',
+            contactMethod: 'email',
+            points: 150,
+            status: 'available'
+          }
+        ];
+
+        const VolunteerApp = () => {
+          const [activeTab, setActiveTab] = useState('tasks');
+          const [tasks, setTasks] = useState([]);
+          const [userPoints, setUserPoints] = useState(340);
+          const [userStreak, setUserStreak] = useState(5);
+          const [selectedTask, setSelectedTask] = useState(null);
+          const [showCelebration, setShowCelebration] = useState(false);
+          const [showConfirmation, setShowConfirmation] = useState(false);
+          const [animatingPoints, setAnimatingPoints] = useState(false);
+          const [confettiPieces, setConfettiPieces] = useState([]);
+          const [pressedCard, setPressedCard] = useState(null);
+          const [loading, setLoading] = useState(true);
+          const [error, setError] = useState(null);
+
+          const AIRTABLE_BASE_ID = 'appMg6NNYyEh6tB94';
+          const AIRTABLE_TOKEN = 'pat3Yq7VR9lR6C4sU.a999d9c2a3c359e69fb45468536f18540d23512f1d633be96fb74f5f3b8c19b3';
+          const AIRTABLE_TABLE = 'Task';
+
+          const fetchTasks = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+              const url = `https://corsproxy.io/?https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}`;
+              
+              const response = await fetch(url, {
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+                },
+              });
+
+              if (!response.ok) {
+                throw new Error(`Airtable API error: ${response.status}`);
+              }
+
+              const data = await response.json();
+              
+              const transformedTasks = data.records.map(record => ({
+                id: record.id,
+                type: record.fields.type || 'thank_you',
+                priority: record.fields.priority || 'medium',
+                specialTag: record.fields.special_tag || null,
+                recipientName: record.fields.recipient_name || null,
+                recipientCount: record.fields.recipient_count || 1,
+                context: record.fields.context || '',
+                message: record.fields.message || '',
+                ctaText: record.fields.cta_text || 'Send',
+                contactMethod: record.fields.contact_method || 'sms',
+                points: record.fields.points || 50,
+                status: record.fields.status || 'available'
+              }));
+
+              setTasks(transformedTasks);
+              setLoading(false);
+            } catch (err) {
+              setError(err.message);
+              setTasks(initialTasks);
+              setLoading(false);
+            }
+          };
+
+          const updateTaskStatus = async (taskId, newStatus) => {
+            try {
+              const url = `https://corsproxy.io/?https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE)}/${taskId}`;
+              
+              await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  fields: { status: newStatus }
+                })
+              });
+              return true;
+            } catch (err) {
+              return false;
+            }
+          };
+
+          useEffect(() => {
+            fetchTasks();
+          }, []);
+
+          useEffect(() => {
+            if (animatingPoints) {
+              const timer = setTimeout(() => setAnimatingPoints(false), 600);
+              return () => clearTimeout(timer);
+            }
+          }, [animatingPoints]);
+
+          const getPriorityColor = (priority) => {
+            switch(priority) {
+              case 'high': return '#f59e0b';
+              case 'medium': return '#fb923c';
+              case 'low': return '#94a3b8';
+              default: return '#cbd5e1';
+            }
+          };
+
+          const getContactIcon = (method) => {
+            switch(method) {
+              case 'sms': return <MessageSquare size={18} strokeWidth={2} />;
+              case 'email': return <Mail size={18} strokeWidth={2} />;
+              case 'call': return <Phone size={18} strokeWidth={2} />;
+              default: return <MessageSquare size={18} strokeWidth={2} />;
+            }
+          };
+
+          const handleTaskClick = (task) => {
+            setSelectedTask(task);
+          };
+
+          const handleCopyAndSend = () => {
+            setSelectedTask(null);
+            setShowConfirmation(true);
+          };
+
+          const generateConfetti = () => {
+            const pieces = [];
+            for (let i = 0; i < 50; i++) {
+              pieces.push({
+                id: i,
+                left: Math.random() * 100,
+                delay: Math.random() * 0.3,
+                duration: 1.5 + Math.random() * 1,
+                color: ['#f59e0b', '#fb923c', '#fbbf24', '#fde68a'][Math.floor(Math.random() * 4)]
+              });
+            }
+            setConfettiPieces(pieces);
+          };
+
+          const handleConfirmSent = async () => {
+            if (selectedTask) {
+              setTasks(tasks.map(t => t.id === selectedTask.id ? {...t, status: 'completed'} : t));
+              setUserPoints(prev => prev + selectedTask.points);
+              setAnimatingPoints(true);
+              setShowConfirmation(false);
+              setShowCelebration(true);
+              generateConfetti();
+              
+              await updateTaskStatus(selectedTask.id, 'completed');
+              
+              setTimeout(() => {
+                setShowCelebration(false);
+                setSelectedTask(null);
+                setConfettiPieces([]);
+              }, 2500);
+            }
+          };
+
+          const availableTasks = tasks.filter(t => t.status === 'available');
+          const completedCount = tasks.filter(t => t.status === 'completed').length;
+
+          return (
+            <div style={{ maxWidth: '448px', margin: '0 auto', minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+              <style>{`
+                @keyframes confettiFall {
+                  to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+                }
+                .confetti { 
+                  position: absolute; 
+                  width: 10px; 
+                  height: 10px; 
+                  border-radius: 2px;
+                  animation: confettiFall linear forwards; 
+                }
+              `}</style>
+
+              {/* Header */}
+              <div style={{ backgroundColor: 'white', borderBottom: '1px solid #f1f5f9', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20 }}>
+                <div onClick={fetchTasks} title="Refresh" style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}>
+                  {loading ? '⟳' : 'AC'}
+                </div>
+                
+                <div style={{ background: '#fafafa', padding: '8px 16px', borderRadius: '10px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Trophy size={20} color="#f59e0b" strokeWidth={2.5} />
+                  <span style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '-0.5px', color: '#0f172a' }}>
+                    {userPoints}
+                  </span>
+                  <span style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '600' }}>pts</span>
+                </div>
+                
+                <div style={{ background: '#fef3c7', padding: '8px 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: '#92400e', fontSize: '15px', fontWeight: 'bold' }}>{userStreak}</span>
+                  <span>🔥</span>
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '16px', backgroundColor: '#fafafa', paddingBottom: '96px' }}>
+                {loading && (
+                  <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '12px' }}>⟳</div>
+                    <p style={{ fontSize: '14px', fontWeight: '600' }}>Loading from Airtable...</p>
+                  </div>
+                )}
+
+                {error && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '14px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
+                    <p style={{ fontSize: '14px', color: '#991b1b', fontWeight: '600', marginBottom: '8px' }}>
+                      ⚠️ Could not connect to Airtable
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#dc2626', marginBottom: '12px' }}>{error}</p>
+                    <button onClick={fetchTasks} style={{ background: '#ef4444', color: 'white', padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' }}>
+                      Retry
+                    </button>
+                    <p style={{ fontSize: '11px', color: '#dc2626', marginTop: '12px' }}>Using demo data</p>
+                  </div>
+                )}
+
+                {!loading && availableTasks.length > 0 && availableTasks.map((task, index) => (
+                  <div
+                    key={task.id}
+                    onClick={() => handleTaskClick(task)}
+                    style={{ background: 'white', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '18px', cursor: 'pointer', border: '1px solid #f1f5f9', marginBottom: '12px' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: getPriorityColor(task.priority) }}></div>
+                        <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b' }}>{task.priority}</span>
+                        {task.specialTag && (
+                          <span style={{ background: '#fef3c7', color: '#92400e', padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase' }}>
+                            {task.specialTag}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ background: '#fffbeb', color: '#92400e', padding: '5px 10px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', border: '1px solid #fef3c7' }}>
+                        +{task.points}
+                      </div>
+                    </div>
+                    
+                    <div style={{ marginBottom: '12px' }}>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '6px', color: '#0f172a' }}>
+                        {task.recipientName || `${task.recipientCount} donors`}
+                      </h3>
+                      <p style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>{task.context}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8' }}>
+                        {getContactIcon(task.contactMethod)}
+                        <span style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: '700' }}>{task.contactMethod}</span>
+                      </div>
+                      <button style={{ background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: 'white', padding: '9px 18px', borderRadius: '10px', fontWeight: '700', fontSize: '13px', border: 'none', cursor: 'pointer' }}>
+                        {task.ctaText}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Task Detail Modal */}
+              {selectedTask && !showConfirmation && !showCelebration && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'flex-end', zIndex: 50 }}>
+                  <div style={{ background: 'white', borderRadius: '24px 24px 0 0', width: '100%', maxWidth: '448px', margin: '0 auto', padding: '28px 22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '20px' }}>
+                      <div>
+                        <h2 style={{ fontSize: '22px', fontWeight: '700', marginBottom: '6px', color: '#0f172a' }}>
+                          {selectedTask.recipientName || `${selectedTask.recipientCount} donors`}
+                        </h2>
+                        <p style={{ fontSize: '14px', color: '#64748b' }}>{selectedTask.context}</p>
+                      </div>
+                      <button onClick={() => setSelectedTask(null)} style={{ background: '#f8fafc', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px', borderRadius: '10px' }}>
+                        <X size={20} />
+                      </button>
+                    </div>
+
+                    <div style={{ background: '#fafafa', borderRadius: '14px', padding: '18px', marginBottom: '18px', border: '1px solid #f1f5f9' }}>
+                      <p style={{ fontSize: '14px', color: '#1e293b', lineHeight: '1.6' }}>{selectedTask.message}</p>
+                    </div>
+
+                    <button
+                      onClick={handleCopyAndSend}
+                      style={{ width: '100%', background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: 'white', padding: '16px', borderRadius: '14px', fontWeight: '700', fontSize: '16px', border: 'none', cursor: 'pointer' }}
+                    >
+                      Copy & Send
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Confirmation Modal */}
+              {showConfirmation && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
+                  <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '340px', padding: '28px 22px' }}>
+                    <div style={{ width: '56px', height: '56px', background: '#fef3c7', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '28px' }}>
+                      ✉️
+                    </div>
+                    <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '10px', textAlign: 'center', color: '#0f172a' }}>
+                      Did you send it?
+                    </h3>
+                    <p style={{ fontSize: '14px', color: '#64748b', textAlign: 'center', marginBottom: '20px' }}>
+                      Confirm to earn your points
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => setShowConfirmation(false)} style={{ flex: 1, background: '#f8fafc', color: '#475569', padding: '14px', borderRadius: '12px', fontWeight: '700', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+                        Not Yet
+                      </button>
+                      <button onClick={handleConfirmSent} style={{ flex: 1, background: 'linear-gradient(135deg, #f59e0b, #f97316)', color: 'white', padding: '14px', borderRadius: '12px', fontWeight: '700', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+                        Yes, Sent!
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Celebration Modal */}
+              {showCelebration && (
+                <div style={{ position: 'fixed', inset: 0, background: 'linear-gradient(135deg, #f59e0b, #f97316)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+                  {confettiPieces.map(piece => (
+                    <div
+                      key={piece.id}
+                      className="confetti"
+                      style={{
+                        left: `${piece.left}%`,
+                        backgroundColor: piece.color,
+                        animationDelay: `${piece.delay}s`,
+                        animationDuration: `${piece.duration}s`
+                      }}
+                    />
+                  ))}
+                  <div style={{ textAlign: 'center', color: 'white', padding: '32px' }}>
+                    <div style={{ fontSize: '72px', marginBottom: '12px' }}>🎉</div>
+                    <h2 style={{ fontSize: '32px', fontWeight: '800', marginBottom: '10px' }}>Great Job!</h2>
+                    <div style={{ fontSize: '56px', fontWeight: '900', marginBottom: '12px' }}>+{selectedTask?.points}</div>
+                    <p style={{ fontSize: '18px', fontWeight: '600' }}>You're making a difference!</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        ReactDOM.render(<VolunteerApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
